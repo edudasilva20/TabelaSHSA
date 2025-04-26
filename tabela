@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Triatlo - Registro de Participantes</title>
+  <style>
+    /* Reset e Estilos Globais */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #00bcd4, #8e44ad);
+      color: #fff;
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    h1, h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: 2px;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #e1e1e1;
+    }
+
+    /* Box do Adicionar Participante */
+    .input-container {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: box-shadow 0.3s ease;
+      max-width: 500px;
+      margin: 20px auto;
+    }
+
+    .input-container:hover {
+      box-shadow: 0 6px 25px rgba(0, 188, 212, 0.5);
+    }
+
+    .input-container input {
+      width: 100%;
+      padding: 15px 25px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      transition: background 0.3s ease;
+    }
+
+    .input-container input:focus {
+      background: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 10px rgba(0, 188, 212, 0.8);
+    }
+
+    .input-container button {
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      border: none;
+      background-color: #00bcd4;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 10px;
+      margin-top: 20px;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .input-container button:hover {
+      background-color: #008c9e;
+      transform: scale(1.05);
+    }
+
+    /* Lista de Participantes */
+    .participant-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .participant-item {
+      background-color: rgba(255, 255, 255, 0.15);
+      padding: 15px 30px;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      color: #fff;
+      text-transform: uppercase;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s, background 0.3s;
+      position: relative;
+    }
+
+    .participant-item:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+
+    .delete-btn {
+      background-color: transparent;
+      color: #000;
+      font-size: 1.5rem;
+      font-weight: bold;
+      border: none;
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .delete-btn:hover {
+      color: #ff4757;
+    }
+
+    /* Container de Checkpoints */
+    #checkpoints-container {
+      display: none;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    #checkpoints-container.active {
+      display: block;
+    }
+
+    .checkpoints-header {
+      font-size: 1.5rem;
+      color: #fff;
+      margin-bottom: 30px;
+    }
+
+    .checkpoints-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .checkpoints-grid div {
+      text-align: center;
+    }
+
+    .checkpoints-grid label {
+      font-size: 1.1rem;
+      color: #fff;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .checkpoints-grid input {
+      padding: 10px;
+      width: 80%;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      text-align: center;
+      transition: background 0.3s ease;
+    }
+
+    .checkpoints-grid input:focus {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Tempo Total */
+    .total-time {
+      font-size: 2rem;
+      color: #00bcd4;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Animações */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsividade para telas grandes */
+    @media (min-width: 1200px) {
+      body {
+        padding: 40px;
+      }
+
+      h1 {
+        font-size: 3rem;
+      }
+
+      .checkpoints-header {
+        font-size: 2rem;
+      }
+
+      .total-time {
+        font-size: 2.5rem;
+      }
+
+      .participant-item {
+        font-size: 1.5rem;
+        padding: 20px 40px;
+      }
+    }
+
+    /* Responsividade para telas pequenas */
+    @media (max-width: 600px) {
+      .checkpoints-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .checkpoints-grid div {
+        margin-bottom: 10px;
+      }
+
+      .total-time {
+        font-size: 1.5rem;
+      }
+
+      .participant-item {
+        font-size: 1rem;
+        padding: 10px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Triatlo San Andreas - Registro de Participantes</h1>
+  <h2>Adicione os participantes e registre os tempos de cada disciplina</h2>
+
+  <!-- Área de Inserir Nome de Participante -->
+  <div class="input-container">
+    <input type="text" id="input-participant-name" placeholder="Digite o nome do participante" />
+    <button onclick="adicionarParticipante()">Adicionar Participante</button>
+  </div>
+
+  <!-- Lista de Participantes -->
+  <div class="participant-container">
+    <ul id="participant-list" class="participant-list"></ul>
+  </div>
+
+  <!-- Top 5 -->
+  <h2>Top 5</h2>
+  <div id="top5" class="participant-list"></div>
+
+  <!-- Container de Checkpoints -->
+  <div id="checkpoints-container">
+    <div class="checkpoints-header">
+      <h2>Registrar Tempos para: <span id="selected-participant-name"></span></h2>
+    </div>
+
+    <!-- Inputs dos Checkpoints -->
+    <div id="checkpoints-inputs" class="checkpoints-grid"></div>
+
+    <!-- Tempo Total -->
+    <div class="total-time" id="total-time">Tempo Total: <span>00:00.00</span></div>
+
+    <!-- Botões para Salvar/Download -->
+    <div class="save-container">
+      <button onclick="salvarDados()">Salvar Dados</button>
+      <button onclick="baixarCSV()">Baixar CSV</button>
+    </div>
+  </div>
+
+  <script>
+    const numCheckpoints = 3;  // Natação, Ciclismo, Corrida
+    let participantes = [];
+    let temposParticipantes = {};
+    let participanteAtual = null;
+
+    function adicionarParticipante() {
+      const nome = document.getElementById('input-participant-name').value.trim();
+      if (nome && !participantes.includes(nome)) {
+        participantes.push(nome);
+        temposParticipantes[nome] = {
+          natação: { horas: 0, minutos: 0, segundos: 0 },
+          ciclismo: { horas: 0, minutos: 0, segundos: 0 },
+          corrida: { horas: 0, minutos: 0, segundos: 0 }
+        };
+        document.getElementById('input-participant-name').value = '';
+        gerarListaParticipantes();
+      }
+    }
+
+    function gerarListaParticipantes() {
+      const lista = document.getElementById('participant-list');
+      lista.innerHTML = '';
+      participantes.forEach(nome => {
+        const item = document.createElement('li');
+        item.classList.add('participant-item');
+        item.textContent = nome;
+        
+        // Ícone de apagar
+        const deleteBtn = document.createElement('button');
+        deleteBtn.classList.add('delete-btn');
+        deleteBtn.textContent = '×';  // Ícone "X"
+        deleteBtn.onclick = () => removerParticipante(nome);
+        item.appendChild(deleteBtn);
+
+        item.onclick = () => mostrarCheckpoints(nome);
+        lista.appendChild(item);
+      });
+
+      mostrarTop5();
+    }
+
+    function removerParticipante(nome) {
+      participantes = participantes.filter(participante => participante !== nome);
+      delete temposParticipantes[nome];
+      gerarListaParticipantes();
+    }
+
+    function mostrarCheckpoints(nome) {
+      participanteAtual = nome;
+      const container = document.getElementById('checkpoints-container');
+      const inputsContainer = document.getElementById('checkpoints-inputs');
+      document.getElementById('selected-participant-name').textContent = nome;
+      const tempos = temposParticipantes[nome];
+
+      inputsContainer.innerHTML = '';
+      ['natação', 'ciclismo', 'corrida'].forEach(disci => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label>${disci.charAt(0).toUpperCase() + disci.slice(1)}</label>
+          <div>
+            <input type="number" value="${tempos[disci].horas}" onchange="atualizarTempo('${nome}', '${disci}', 'horas', this.value)" />
+            <input type="number" value="${tempos[disci].minutos}" onchange="atualizarTempo('${nome}', '${disci}', 'minutos', this.value)" />
+            <input type="number" value="${tempos[disci].segundos}" onchange="atualizarTempo('${nome}', '${disci}', 'segundos', this.value)" />
+          </div>
+        `;
+        inputsContainer.appendChild(div);
+      });
+      
+      container.classList.add('active');
+      calcularTotal(nome);
+    }
+
+    function atualizarTempo(nome, disciplina, unidade, value) {
+      temposParticipantes[nome][disciplina][unidade] = parseInt(value);
+      calcularTotal(nome);
+    }
+
+    function calcularTotal(nome) {
+      const tempos = temposParticipantes[nome];
+      const totalSegundos = (tempos.natação.horas * 3600 + tempos.natação.minutos * 60 + tempos.natação.segundos) +
+                            (tempos.ciclismo.horas * 3600 + tempos.ciclismo.minutos * 60 + tempos.ciclismo.segundos) +
+                            (tempos.corrida.horas * 3600 + tempos.corrida.minutos * 60 + tempos.corrida.segundos);
+
+      const horas = Math.floor(totalSegundos / 3600);
+      const minutos = Math.floor((totalSegundos % 3600) / 60);
+      const segundos = totalSegundos % 60;
+
+      document.getElementById('total-time').innerHTML = `Tempo Total: <span>${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}</span>`;
+      mostrarTop5();  // Atualiza o Top 5
+    }
+
+    function mostrarTop5() {
+      const top5Container = document.getElementById('top5');
+      const ranking = Object.keys(temposParticipantes).map(nome => {
+        const tempos = temposParticipantes[nome];
+        const totalSegundos = (tempos.natação.horas * 3600 + tempos.natação.minutos * 60 + tempos.natação.segundos) +
+                              (tempos.ciclismo.horas * 3600 + tempos.ciclismo.minutos * 60 + tempos.ciclismo.segundos) +
+                              (tempos.corrida.horas * 3600 + tempos.corrida.minutos * 60 + tempos.corrida.segundos);
+        return { nome, totalSegundos };
+      }).sort((a, b) => a.totalSegundos - b.totalSegundos).slice(0, 5);
+
+      top5Container.innerHTML = '';
+      ranking.forEach((participante, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${index + 1} - ${participante.nome} - ${formatarTempo(participante.totalSegundos)}`;
+        top5Container.appendChild(listItem);
+      });
+    }
+
+    function formatarTempo(segundos) {
+      const horas = Math.floor(segundos / 3600);
+      const minutos = Math.floor((segundos % 3600) / 60);
+      const segundosRestantes = segundos % 60;
+      return `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundosRestantes.toString().padStart(2, '0')}`;
+    }
+
+    function salvarDados() {
+      alert('Dados salvos!');
+    }
+
+    function baixarCSV() {
+      let csvContent = 'Nome, Natação (Horas), Natação (Minutos), Natação (Segundos), Ciclismo (Horas), Ciclismo (Minutos), Ciclismo (Segundos), Corrida (Horas), Corrida (Minutos), Corrida (Segundos), Tempo Total\n';
+      Object.keys(temposParticipantes).forEach(nome => {
+        const tempos = temposParticipantes[nome];
+        const totalSegundos = (tempos.natação.horas * 3600 + tempos.natação.minutos * 60 + tempos.natação.segundos) +
+                              (tempos.ciclismo.horas * 3600 + tempos.ciclismo.minutos * 60 + tempos.ciclismo.segundos) +
+                              (tempos.corrida.horas * 3600 + tempos.corrida.minutos * 60 + tempos.corrida.segundos);
+        csvContent += `${nome}, ${tempos.natação.horas}, ${tempos.natação.minutos}, ${tempos.natação.segundos}, ${tempos.ciclismo.horas}, ${tempos.ciclismo.minutos}, ${tempos.ciclismo.segundos}, ${tempos.corrida.horas}, ${tempos.corrida.minutos}, ${tempos.corrida.segundos}, ${formatarTempo(totalSegundos)}\n`;
+      });
+
+      const link = document.createElement('a');
+      link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+      link.download = 'triatlo_participantes.csv';
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
